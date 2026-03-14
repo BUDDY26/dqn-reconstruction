@@ -38,9 +38,11 @@ class TestQNetworkConstruction:
         """
         net = QNetwork()
         total = sum(p.numel() for p in net.parameters() if p.requires_grad)
-        expected = (OBS_DIM * HIDDEN_SIZE + HIDDEN_SIZE) + \
-                   (HIDDEN_SIZE * HIDDEN_SIZE + HIDDEN_SIZE) + \
-                   (HIDDEN_SIZE * N_ACTIONS + N_ACTIONS)
+        expected = (
+            (OBS_DIM * HIDDEN_SIZE + HIDDEN_SIZE)
+            + (HIDDEN_SIZE * HIDDEN_SIZE + HIDDEN_SIZE)
+            + (HIDDEN_SIZE * N_ACTIONS + N_ACTIONS)
+        )
         assert total == expected
 
 
@@ -110,6 +112,7 @@ class TestQNetworkGradients:
         x = torch.randn(4, OBS_DIM)
         target = torch.randn(4, N_ACTIONS)
         import torch.nn.functional as F
+
         loss = F.mse_loss(net(x), target)
         loss.backward()
         grad_norms = [p.grad.norm().item() for p in net.parameters() if p.grad is not None]

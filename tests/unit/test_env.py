@@ -33,6 +33,7 @@ from env import TradingEnv
 # Fixture: small env with known close prices
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def simple_env(synthetic_features, synthetic_close_prices):
     """TradingEnv with 10 days of data.
@@ -60,6 +61,7 @@ def reset_env(simple_env):
 # Spaces
 # ---------------------------------------------------------------------------
 
+
 class TestSpaces:
     def test_observation_space_shape(self, simple_env):
         assert simple_env.observation_space.shape == (OBS_DIM,)
@@ -83,6 +85,7 @@ class TestSpaces:
 # ---------------------------------------------------------------------------
 # reset()
 # ---------------------------------------------------------------------------
+
 
 class TestReset:
     def test_obs_shape(self, reset_env):
@@ -126,6 +129,7 @@ class TestReset:
 # step(): position transitions  [assumption A-E4]
 # ---------------------------------------------------------------------------
 
+
 class TestPositionTransitions:
     def test_hold_when_flat_stays_flat(self, reset_env):
         env, _, _ = reset_env
@@ -167,6 +171,7 @@ class TestPositionTransitions:
 # step(): reward formula  [assumption A-E1]
 # ---------------------------------------------------------------------------
 
+
 class TestRewardFormula:
     """
     close_prices = [100, 110, 100, 110, ...]
@@ -195,15 +200,15 @@ class TestRewardFormula:
     def test_hold_long_reward_is_next_day_return(self, reset_env):
         """After BUY at step 0, HOLD at step 1: daily_return[1→2] = -1/11."""
         env, _, _ = reset_env
-        env.step(ACTION_BUY)          # step 0: position → 1
-        _, reward, _, _, _ = env.step(ACTION_HOLD)   # step 1: reward = 1 × (100-110)/110
+        env.step(ACTION_BUY)  # step 0: position → 1
+        _, reward, _, _, _ = env.step(ACTION_HOLD)  # step 1: reward = 1 × (100-110)/110
         expected = (100.0 - 110.0) / 110.0
         assert reward == pytest.approx(expected, rel=1e-6)
 
     def test_sell_from_long_reward_is_zero(self, reset_env):
         """SELL at step 1: position → 0 immediately, so reward = 0 × daily_return = 0."""
         env, _, _ = reset_env
-        env.step(ACTION_BUY)   # step 0
+        env.step(ACTION_BUY)  # step 0
         _, reward, _, _, _ = env.step(ACTION_SELL)  # step 1: position→0 before reward
         assert reward == pytest.approx(0.0)
 
@@ -211,6 +216,7 @@ class TestRewardFormula:
 # ---------------------------------------------------------------------------
 # step(): observation advancement
 # ---------------------------------------------------------------------------
+
 
 class TestObservationAdvancement:
     def test_step_returns_next_feature_row(self, synthetic_features, synthetic_close_prices):
@@ -230,10 +236,11 @@ class TestObservationAdvancement:
 # step(): terminal condition  [assumptions A-E6, A-E7]
 # ---------------------------------------------------------------------------
 
+
 class TestTerminalCondition:
     def test_not_terminated_before_last_step(self, reset_env):
         env, _, _ = reset_env
-        for _ in range(env.n_steps - 1):   # all but the last step
+        for _ in range(env.n_steps - 1):  # all but the last step
             _, _, terminated, _, _ = env.step(ACTION_HOLD)
             assert not terminated
 
@@ -263,6 +270,7 @@ class TestTerminalCondition:
 # Portfolio accounting  [assumptions A-E3, A-E4]
 # ---------------------------------------------------------------------------
 
+
 class TestPortfolioAccounting:
     def test_buy_depletes_cash(self, reset_env):
         env, _, _ = reset_env
@@ -273,13 +281,13 @@ class TestPortfolioAccounting:
         """After BUY at close=100: shares = initial_capital / 100 = 100."""
         env, _, _ = reset_env
         env.step(ACTION_BUY)
-        expected_shares = INITIAL_CAPITAL / 100.0   # close[0] = 100.0
+        expected_shares = INITIAL_CAPITAL / 100.0  # close[0] = 100.0
         assert env._shares == pytest.approx(expected_shares, rel=1e-6)
 
     def test_sell_recovers_portfolio_value(self, reset_env):
         """BUY at 100, price rises to 110, SELL at 110 → portfolio value = 11,000."""
         env, _, _ = reset_env
-        env.step(ACTION_BUY)   # buy at close[0] = 100 → shares = 100
+        env.step(ACTION_BUY)  # buy at close[0] = 100 → shares = 100
         env.step(ACTION_SELL)  # sell at close[1] = 110 → cash = 100 × 110 = 11000
         assert env._cash == pytest.approx(INITIAL_CAPITAL * 1.10, rel=1e-6)
 
@@ -290,7 +298,7 @@ class TestPortfolioAccounting:
     def test_portfolio_value_when_long(self, reset_env):
         """After BUY at 100, portfolio_value = shares × current_close."""
         env, _, _ = reset_env
-        _, _, _, _, info = env.step(ACTION_BUY)   # now at step 1, close = 110
+        _, _, _, _, info = env.step(ACTION_BUY)  # now at step 1, close = 110
         # shares = 10000 / 100 = 100; portfolio_value = 100 × 110 = 11000
         assert info["portfolio_value"] == pytest.approx(11_000.0, rel=1e-6)
 
@@ -299,14 +307,15 @@ class TestPortfolioAccounting:
 # Input validation
 # ---------------------------------------------------------------------------
 
+
 class TestInputValidation:
     def test_wrong_feature_width_raises(self, synthetic_close_prices):
-        bad_features = np.ones((10, 5), dtype=np.float32)   # wrong n_cols
+        bad_features = np.ones((10, 5), dtype=np.float32)  # wrong n_cols
         with pytest.raises(ValueError, match="shape"):
             TradingEnv(features=bad_features, close_prices=synthetic_close_prices)
 
     def test_mismatched_lengths_raise(self, synthetic_features):
-        bad_close = np.ones(5, dtype=np.float64)   # wrong length
+        bad_close = np.ones(5, dtype=np.float64)  # wrong length
         with pytest.raises(ValueError, match="length"):
             TradingEnv(features=synthetic_features, close_prices=bad_close)
 
@@ -318,5 +327,8 @@ class TestInputValidation:
 
     def test_negative_capital_raises(self, synthetic_features, synthetic_close_prices):
         with pytest.raises(ValueError, match="positive"):
-            TradingEnv(features=synthetic_features, close_prices=synthetic_close_prices,
-                       initial_capital=-100.0)
+            TradingEnv(
+                features=synthetic_features,
+                close_prices=synthetic_close_prices,
+                initial_capital=-100.0,
+            )

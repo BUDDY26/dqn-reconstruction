@@ -50,10 +50,17 @@ Applied to each of the five OHLCV columns. 1-day is the default for daily-bar da
 """
 
 FEATURE_COLUMNS: Final[List[str]] = [
-    "open", "high", "low", "close", "volume",       # [CONFIRMED] raw OHLCV
-    "vwap",                                           # [CONFIRMED] VWAP (approximated — A-D2)
-    "pct_open", "pct_high", "pct_low",               # [ASSUMED: A-D1] 1-day pct changes
-    "pct_close", "pct_volume",                        # [ASSUMED: A-D1]
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",  # [CONFIRMED] raw OHLCV
+    "vwap",  # [CONFIRMED] VWAP (approximated — A-D2)
+    "pct_open",
+    "pct_high",
+    "pct_low",  # [ASSUMED: A-D1] 1-day pct changes
+    "pct_close",
+    "pct_volume",  # [ASSUMED: A-D1]
 ]
 """Canonical ordered list of feature columns produced by data.build_features().
 The network input layer is indexed by this order. Do not reorder without updating OBS_DIM

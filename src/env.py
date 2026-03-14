@@ -89,8 +89,7 @@ class TradingEnv(gymnasium.Env):
         # Validate inputs.
         if features.ndim != 2 or features.shape[1] != OBS_DIM:
             raise ValueError(
-                f"features must have shape (n_days, {OBS_DIM}); "
-                f"got {features.shape}."
+                f"features must have shape (n_days, {OBS_DIM}); " f"got {features.shape}."
             )
         if close_prices.ndim != 1 or len(close_prices) != len(features):
             raise ValueError(
@@ -128,7 +127,7 @@ class TradingEnv(gymnasium.Env):
 
         # Internal state (initialised in reset()).
         self._step: int = 0
-        self._position: int = 0        # 0=flat, 1=long  [ASSUMED: A-E4]
+        self._position: int = 0  # 0=flat, 1=long  [ASSUMED: A-E4]
         self._cash: float = initial_capital
         self._shares: float = 0.0
         self._episode_return: float = 0.0
@@ -160,7 +159,7 @@ class TradingEnv(gymnasium.Env):
         super().reset(seed=seed)
 
         self._step = 0
-        self._position = 0      # Start flat.  [ASSUMED: A-E4]
+        self._position = 0  # Start flat.  [ASSUMED: A-E4]
         self._cash = self._initial_capital
         self._shares = 0.0
         self._episode_return = 0.0
@@ -171,9 +170,7 @@ class TradingEnv(gymnasium.Env):
         logger.debug("[%s] reset — %d steps per episode.", self._ticker, self._n_steps)
         return observation, info
 
-    def step(
-        self, action: int
-    ) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         """Advance the environment by one trading day.
 
         Execution order:

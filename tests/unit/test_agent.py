@@ -31,6 +31,7 @@ from config import (
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_agent(**kwargs) -> DQNAgent:
     """Construct an agent with a fixed seed for reproducibility."""
     return DQNAgent(seed=42, **kwargs)
@@ -57,6 +58,7 @@ def _fill_agent_buffer(agent: DQNAgent, n: int):
 # ---------------------------------------------------------------------------
 # Epsilon schedule
 # ---------------------------------------------------------------------------
+
 
 class TestEpsilonSchedule:
 
@@ -103,6 +105,7 @@ class TestEpsilonSchedule:
 # ---------------------------------------------------------------------------
 # Action selection
 # ---------------------------------------------------------------------------
+
 
 class TestSelectAction:
 
@@ -155,6 +158,7 @@ class TestSelectAction:
 # store_transition
 # ---------------------------------------------------------------------------
 
+
 class TestStoreTransition:
 
     def test_buffer_length_increases(self):
@@ -173,6 +177,7 @@ class TestStoreTransition:
 # ---------------------------------------------------------------------------
 # train_step
 # ---------------------------------------------------------------------------
+
 
 class TestTrainStep:
 
@@ -211,10 +216,7 @@ class TestTrainStep:
         _fill_agent_buffer(agent, BATCH_SIZE)
 
         # Snapshot online weights before.
-        before = {
-            name: param.clone()
-            for name, param in agent.online_net.named_parameters()
-        }
+        before = {name: param.clone() for name, param in agent.online_net.named_parameters()}
 
         agent.train_step()
 
@@ -229,22 +231,20 @@ class TestTrainStep:
         agent = _make_agent()
         _fill_agent_buffer(agent, BATCH_SIZE)
 
-        target_before = {
-            name: param.clone()
-            for name, param in agent.target_net.named_parameters()
-        }
+        target_before = {name: param.clone() for name, param in agent.target_net.named_parameters()}
 
         agent.train_step()
 
         for name, param in agent.target_net.named_parameters():
-            assert torch.equal(target_before[name], param), (
-                f"Target network parameter '{name}' changed during train_step."
-            )
+            assert torch.equal(
+                target_before[name], param
+            ), f"Target network parameter '{name}' changed during train_step."
 
 
 # ---------------------------------------------------------------------------
 # update_target_network
 # ---------------------------------------------------------------------------
+
 
 class TestUpdateTargetNetwork:
 
@@ -260,9 +260,9 @@ class TestUpdateTargetNetwork:
             agent.online_net.named_parameters(),
             agent.target_net.named_parameters(),
         ):
-            assert torch.equal(online_param, target_param), (
-                f"Parameter '{name}' differs between online and target after update."
-            )
+            assert torch.equal(
+                online_param, target_param
+            ), f"Parameter '{name}' differs between online and target after update."
 
     def test_target_initially_matches_online(self):
         """Fresh agent: target and online should have identical weights."""
@@ -286,6 +286,6 @@ class TestUpdateTargetNetwork:
                 agent.target_net.parameters(),
             )
         )
-        assert any_different, (
-            "Expected online and target to diverge after train_step, but they are still equal."
-        )
+        assert (
+            any_different
+        ), "Expected online and target to diverge after train_step, but they are still equal."

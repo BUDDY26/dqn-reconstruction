@@ -20,6 +20,7 @@ from replay_buffer import ReplayBuffer
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_transition(obs_dim: int = OBS_DIM, seed: int = 0):
     """Return a deterministic (state, action, reward, next_state, done) tuple."""
     rng = np.random.default_rng(seed)
@@ -40,6 +41,7 @@ def _fill_buffer(buf: ReplayBuffer, n: int, obs_dim: int = OBS_DIM):
 # ---------------------------------------------------------------------------
 # Construction and length
 # ---------------------------------------------------------------------------
+
 
 class TestReplayBufferConstruction:
 
@@ -72,6 +74,7 @@ class TestReplayBufferConstruction:
 # ---------------------------------------------------------------------------
 # Ring-buffer overflow
 # ---------------------------------------------------------------------------
+
 
 class TestRingBufferOverflow:
 
@@ -111,6 +114,7 @@ class TestRingBufferOverflow:
 # ---------------------------------------------------------------------------
 # sample() output shapes and dtypes
 # ---------------------------------------------------------------------------
+
 
 class TestReplayBufferSample:
 
@@ -169,6 +173,7 @@ class TestReplayBufferSample:
 # ValueError when buffer is under-full
 # ---------------------------------------------------------------------------
 
+
 class TestReplayBufferSampleError:
 
     def test_raises_when_empty(self):
@@ -192,6 +197,7 @@ class TestReplayBufferSampleError:
 # ---------------------------------------------------------------------------
 # Round-trip value correctness
 # ---------------------------------------------------------------------------
+
 
 class TestReplayBufferValues:
 

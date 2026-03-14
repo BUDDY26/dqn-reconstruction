@@ -22,6 +22,7 @@ import numpy as np
 # Reproducibility
 # ---------------------------------------------------------------------------
 
+
 def set_seed(seed: int) -> None:
     """Set random seeds for NumPy and Python's random module.
 
@@ -45,6 +46,7 @@ def set_seed(seed: int) -> None:
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
+
 
 def get_logger(
     name: str,
@@ -80,8 +82,10 @@ def get_logger(
 # Epsilon schedule (episodic linear decay)
 # ---------------------------------------------------------------------------
 
-def epsilon_for_episode(episode: int, epsilon_start: float, epsilon_end: float,
-                         total_episodes: int) -> float:
+
+def epsilon_for_episode(
+    episode: int, epsilon_start: float, epsilon_end: float, total_episodes: int
+) -> float:
     """Compute the epsilon value for the given episode using linear decay.
 
     ASSUMED (A-T1): Linear decay over total_episodes episodes.

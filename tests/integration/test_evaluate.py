@@ -28,6 +28,7 @@ from evaluate import (
 # 1. Metric function tests (pure functions, no environment)
 # ===========================================================================
 
+
 class TestComputeROI:
     """ROI = (final - initial) / initial."""
 
@@ -170,6 +171,7 @@ class TestComputeCalmar:
 # ===========================================================================
 # 2. evaluate() smoke tests (full pipeline on fixture data)
 # ===========================================================================
+
 
 @pytest.fixture(scope="module")
 def test_arrays(sample_csv_path):

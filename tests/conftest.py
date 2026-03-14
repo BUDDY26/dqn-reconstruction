@@ -16,6 +16,7 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures"
 # File path fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="session")
 def sample_csv_path() -> Path:
     """Absolute path to the synthetic OHLCV fixture CSV."""
@@ -27,6 +28,7 @@ def sample_csv_path() -> Path:
 # ---------------------------------------------------------------------------
 # Synthetic array fixtures (used by unit tests that bypass file I/O)
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def synthetic_features() -> np.ndarray:

@@ -151,7 +151,7 @@ class DQNAgent:
         self.online_net.eval()
         with torch.no_grad():
             state_t = torch.from_numpy(state).float().unsqueeze(0)  # (1, obs_dim)
-            q_values = self.online_net(state_t)                      # (1, n_actions)
+            q_values = self.online_net(state_t)  # (1, n_actions)
         self.online_net.train()
 
         return int(q_values.argmax(dim=1).item())
@@ -196,9 +196,7 @@ class DQNAgent:
         if len(self.replay_buffer) < self._batch_size:
             return None
 
-        states, actions, rewards, next_states, dones = self.replay_buffer.sample(
-            self._batch_size
-        )
+        states, actions, rewards, next_states, dones = self.replay_buffer.sample(self._batch_size)
 
         # Q-values for actions actually taken: shape (batch,).
         self.online_net.train()

@@ -34,6 +34,7 @@ from data import (
 # Fixture: loaded raw DataFrame
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def raw_df(sample_csv_path):
     """Raw OHLCV DataFrame loaded from the synthetic fixture."""
@@ -49,6 +50,7 @@ def feature_df(raw_df):
 # ---------------------------------------------------------------------------
 # load_csv
 # ---------------------------------------------------------------------------
+
 
 class TestLoadCsv:
     def test_returns_dataframe(self, raw_df):
@@ -82,6 +84,7 @@ class TestLoadCsv:
 # compute_vwap  [assumption A-D2: VWAP = (H + L + C) / 3]
 # ---------------------------------------------------------------------------
 
+
 class TestComputeVwap:
     def test_formula_is_hlc_over_3(self, raw_df):
         """VWAP for each row = (high + low + close) / 3."""
@@ -92,7 +95,7 @@ class TestComputeVwap:
     def test_first_row_known_value(self, raw_df):
         """Fixture row 0: H=101.50, L=99.00, C=100.80 → VWAP = 100.4333..."""
         vwap = compute_vwap(raw_df)
-        expected = (101.50 + 99.00 + 100.80) / 3.0   # 100.43333...
+        expected = (101.50 + 99.00 + 100.80) / 3.0  # 100.43333...
         assert np.isclose(vwap.iloc[0], expected, rtol=1e-6)
 
     def test_returns_series_named_vwap(self, raw_df):
@@ -108,6 +111,7 @@ class TestComputeVwap:
 # ---------------------------------------------------------------------------
 # compute_pct_changes  [assumption A-D1: 1-day pct_change on all OHLCV]
 # ---------------------------------------------------------------------------
+
 
 class TestComputePctChanges:
     def test_first_row_is_nan(self, raw_df):
@@ -147,6 +151,7 @@ class TestComputePctChanges:
 # build_features
 # ---------------------------------------------------------------------------
 
+
 class TestBuildFeatures:
     def test_output_has_11_columns(self, feature_df):
         assert feature_df.shape[1] == OBS_DIM
@@ -181,6 +186,7 @@ class TestBuildFeatures:
 # split_by_date  [assumption A-D3]
 # ---------------------------------------------------------------------------
 
+
 class TestSplitByDate:
     def test_train_ends_before_test_starts(self, feature_df):
         train_df, test_df = split_by_date(feature_df)
@@ -213,6 +219,7 @@ class TestSplitByDate:
 # ---------------------------------------------------------------------------
 # fit_scaler / apply_scaler
 # ---------------------------------------------------------------------------
+
 
 class TestScaling:
     def test_train_features_zero_mean(self, feature_df):
@@ -249,6 +256,7 @@ class TestScaling:
 # ---------------------------------------------------------------------------
 # prepare_arrays (pipeline integration within data.py)
 # ---------------------------------------------------------------------------
+
 
 class TestPrepareArrays:
     def test_output_shapes(self, feature_df):

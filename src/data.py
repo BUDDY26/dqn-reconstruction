@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 # CSV Loading
 # ---------------------------------------------------------------------------
 
+
 def load_csv(path: Path | str) -> pd.DataFrame:
     """Load OHLCV data from a CSV file into a DataFrame with a DatetimeIndex.
 
@@ -78,6 +79,7 @@ def load_csv(path: Path | str) -> pd.DataFrame:
 # Missing Value Handling
 # ---------------------------------------------------------------------------
 
+
 def fill_missing(df: pd.DataFrame) -> pd.DataFrame:
     """Forward-fill missing values, then drop any remaining NaN rows.
 
@@ -107,6 +109,7 @@ def fill_missing(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Feature Engineering
 # ---------------------------------------------------------------------------
+
 
 def compute_vwap(df: pd.DataFrame) -> pd.Series:
     """Compute the daily VWAP approximation as (High + Low + Close) / 3.
@@ -195,6 +198,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 # Train / Test Split
 # ---------------------------------------------------------------------------
 
+
 def split_by_date(
     df: pd.DataFrame,
     train_end: str = TRAIN_END,
@@ -238,8 +242,12 @@ def split_by_date(
 
     logger.debug(
         "split_by_date: %d train rows (%s to %s), %d test rows (%s to %s).",
-        len(train_df), train_df.index[0].date(), train_df.index[-1].date(),
-        len(test_df), test_df.index[0].date(), test_df.index[-1].date(),
+        len(train_df),
+        train_df.index[0].date(),
+        train_df.index[-1].date(),
+        len(test_df),
+        test_df.index[0].date(),
+        test_df.index[-1].date(),
     )
     return train_df, test_df
 
@@ -247,6 +255,7 @@ def split_by_date(
 # ---------------------------------------------------------------------------
 # Scaling
 # ---------------------------------------------------------------------------
+
 
 def fit_scaler(train_df: pd.DataFrame) -> StandardScaler:
     """Fit a StandardScaler on the training feature DataFrame.
@@ -283,6 +292,7 @@ def apply_scaler(scaler: StandardScaler, df: pd.DataFrame) -> np.ndarray:
 # ---------------------------------------------------------------------------
 # Full Pipeline Helper
 # ---------------------------------------------------------------------------
+
 
 def prepare_arrays(
     feature_df: pd.DataFrame,

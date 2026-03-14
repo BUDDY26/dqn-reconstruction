@@ -46,6 +46,7 @@ logger = get_logger(__name__)
 # Result dataclass
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class TrainResult:
     """Container for training outcomes from a single-asset training run.
@@ -59,6 +60,7 @@ class TrainResult:
         episode_final_values:  Portfolio value at the end of each episode, in USD.
         n_episodes:            Number of episodes actually completed.
     """
+
     agent: DQNAgent
     ticker: str
     episode_rewards: list[float]
@@ -69,6 +71,7 @@ class TrainResult:
 # ---------------------------------------------------------------------------
 # Episode runner
 # ---------------------------------------------------------------------------
+
 
 def _run_episode(env: TradingEnv, agent: DQNAgent) -> tuple[float, float]:
     """Run one complete episode and return (total_reward, final_portfolio_value).
@@ -109,6 +112,7 @@ def _run_episode(env: TradingEnv, agent: DQNAgent) -> tuple[float, float]:
 # ---------------------------------------------------------------------------
 # Main training function
 # ---------------------------------------------------------------------------
+
 
 def train(
     features: np.ndarray,
@@ -166,13 +170,19 @@ def train(
         if (episode + 1) % 20 == 0 or episode == 0:
             logger.info(
                 "[%s] episode %3d/%d  reward=%.4f  portfolio=%.2f  ε=%.4f",
-                ticker, episode + 1, n_episodes,
-                ep_reward, final_value, agent.epsilon,
+                ticker,
+                episode + 1,
+                n_episodes,
+                ep_reward,
+                final_value,
+                agent.epsilon,
             )
 
     logger.info(
         "[%s] Training complete. Final ε=%.4f. Last portfolio value=%.2f.",
-        ticker, agent.epsilon, episode_final_values[-1],
+        ticker,
+        agent.epsilon,
+        episode_final_values[-1],
     )
 
     # Optional checkpoint — basic model persistence (implementation-plan.md §train.py).

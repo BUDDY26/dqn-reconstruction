@@ -45,7 +45,7 @@ class ReplayBuffer:
         self._next_states = np.zeros((capacity, obs_dim), dtype=np.float32)
         self._dones = np.zeros(capacity, dtype=bool)
 
-        self._ptr = 0   # Write pointer (next slot to overwrite).
+        self._ptr = 0  # Write pointer (next slot to overwrite).
         self._size = 0  # Number of valid transitions currently stored.
 
     # ------------------------------------------------------------------

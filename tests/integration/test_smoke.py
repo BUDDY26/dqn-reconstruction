@@ -78,6 +78,7 @@ class TestSmokeEndToEnd:
 
     def test_env_is_gymnasium_env(self):
         import gymnasium
+
         assert isinstance(self.env, gymnasium.Env)
 
     def test_env_observation_space(self):
@@ -134,7 +135,7 @@ class TestSmokeEndToEnd:
         """Verify the episode terminates (does not loop forever)."""
         obs, _ = self.env.reset()
         terminated = False
-        max_steps = self.env.n_steps + 10   # safety margin
+        max_steps = self.env.n_steps + 10  # safety margin
 
         for _ in range(max_steps):
             action = self.env.action_space.sample()
@@ -152,9 +153,9 @@ class TestSmokeEndToEnd:
         while not terminated:
             action = self.env.action_space.sample()
             _, _, terminated, _, info = self.env.step(action)
-            assert info["portfolio_value"] > 0.0, (
-                f"Portfolio value went non-positive: {info['portfolio_value']}"
-            )
+            assert (
+                info["portfolio_value"] > 0.0
+            ), f"Portfolio value went non-positive: {info['portfolio_value']}"
 
     def test_buy_hold_sell_sequence_runs(self):
         """Deterministic buy-hold-hold-sell sequence should produce no errors."""

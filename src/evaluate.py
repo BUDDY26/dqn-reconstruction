@@ -45,6 +45,7 @@ _TRADING_DAYS_PER_YEAR: int = 252
 # Result dataclass
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class EvalResult:
     """Container for evaluation outcomes from a single-asset evaluation run.
@@ -61,6 +62,7 @@ class EvalResult:
         portfolio_values: Array of portfolio values in USD, one entry per step
                           (length = n_test_steps + 1, includes the initial value).
     """
+
     ticker: str
     roi: float
     sharpe: float
@@ -72,6 +74,7 @@ class EvalResult:
 # ---------------------------------------------------------------------------
 # Pure metric functions (public; tested independently)
 # ---------------------------------------------------------------------------
+
 
 def compute_roi(portfolio_values: np.ndarray) -> float:
     """Compute total return over the evaluation period.
@@ -182,6 +185,7 @@ def compute_calmar(
 # Greedy action selection (evaluation only — no exploration)
 # ---------------------------------------------------------------------------
 
+
 def _greedy_action(net: QNetwork, state: np.ndarray) -> int:
     """Select the action with the highest Q-value (ε=0 policy).
 
@@ -203,6 +207,7 @@ def _greedy_action(net: QNetwork, state: np.ndarray) -> int:
 # ---------------------------------------------------------------------------
 # Evaluation runner
 # ---------------------------------------------------------------------------
+
 
 def evaluate(
     agent: DQNAgent,
@@ -249,7 +254,11 @@ def evaluate(
 
     logger.info(
         "[%s] Evaluation — ROI=%.4f  Sharpe=%.4f  MDD=%.4f  Calmar=%.4f",
-        ticker, roi, sharpe, mdd, calmar,
+        ticker,
+        roi,
+        sharpe,
+        mdd,
+        calmar,
     )
 
     return EvalResult(

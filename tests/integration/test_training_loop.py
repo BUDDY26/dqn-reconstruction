@@ -19,6 +19,7 @@ from train import TrainResult, train
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="module")
 def train_arrays(sample_csv_path):
     """Prepared training feature and close price arrays from the fixture CSV."""
@@ -32,6 +33,7 @@ def train_arrays(sample_csv_path):
 # TrainResult structural correctness
 # ---------------------------------------------------------------------------
 
+
 class TestTrainResultStructure:
     """Verify train() returns a well-formed TrainResult for a 2-episode run."""
 
@@ -40,9 +42,7 @@ class TestTrainResultStructure:
     @pytest.fixture(autouse=True)
     def _result(self, train_arrays):
         features, close = train_arrays
-        self.result = train(
-            features, close, ticker="SMOKE", n_episodes=self.N_EPISODES, seed=42
-        )
+        self.result = train(features, close, ticker="SMOKE", n_episodes=self.N_EPISODES, seed=42)
 
     def test_returns_train_result_instance(self):
         assert isinstance(self.result, TrainResult)
@@ -80,15 +80,14 @@ class TestTrainResultStructure:
 # Epsilon and target network schedule
 # ---------------------------------------------------------------------------
 
+
 class TestTrainingSchedule:
     """Verify epsilon decay and target update schedule fire correctly."""
 
     @pytest.fixture(autouse=True)
     def _result(self, train_arrays):
         features, close = train_arrays
-        self.result = train(
-            features, close, ticker="SCHED", n_episodes=3, seed=0
-        )
+        self.result = train(features, close, ticker="SCHED", n_episodes=3, seed=0)
 
     def test_epsilon_decreases_after_training(self):
         """Epsilon at episode 3 should be less than at episode 0 (1.0)."""
@@ -96,12 +95,14 @@ class TestTrainingSchedule:
 
     def test_epsilon_stays_above_epsilon_end(self):
         from config import EPSILON_END
+
         assert self.result.agent.epsilon >= EPSILON_END
 
 
 # ---------------------------------------------------------------------------
 # Checkpoint saving
 # ---------------------------------------------------------------------------
+
 
 class TestCheckpointSaving:
     """Verify that checkpoint_path causes a state_dict file to be written."""
@@ -129,6 +130,7 @@ class TestCheckpointSaving:
 # ---------------------------------------------------------------------------
 # Reproducibility
 # ---------------------------------------------------------------------------
+
 
 class TestReproducibility:
     """Two runs with the same seed should produce identical episode rewards."""
