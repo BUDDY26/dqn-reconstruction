@@ -1,0 +1,6 @@
+bootstrapped_on: 2026-03-14
+project: dqn-reconstruction
+note: Structural remediation applied manually. Full bootstrap was not run interactively.
+      Repository was a partial template copy (5 files only). All required directories
+      and stub files were created to bring the repo to a valid template baseline.
+      CLAUDE.md placeholders remain and will be filled during DQN-specific initialization.
