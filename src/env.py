@@ -46,7 +46,6 @@ from gymnasium import spaces
 
 from config import (
     ACTION_BUY,
-    ACTION_HOLD,
     ACTION_SELL,
     INITIAL_CAPITAL,
     N_ACTIONS,

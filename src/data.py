@@ -32,7 +32,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-from config import FEATURE_COLUMNS, PCT_CHANGE_PERIOD, TRAIN_END, TEST_START, TEST_END
+from config import FEATURE_COLUMNS, PCT_CHANGE_PERIOD, TEST_END, TEST_START, TRAIN_END
 
 logger = logging.getLogger(__name__)
 

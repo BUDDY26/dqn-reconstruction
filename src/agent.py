@@ -36,7 +36,6 @@ from config import (
     N_ACTIONS,
     OBS_DIM,
     REPLAY_BUFFER_SIZE,
-    TARGET_UPDATE_FREQ,
     TRAINING_EPISODES,
 )
 from network import QNetwork

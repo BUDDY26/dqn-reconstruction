@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from config import FEATURE_COLUMNS, OBS_DIM
 from data import (
     apply_scaler,
     build_features,
@@ -28,8 +29,6 @@ from data import (
     prepare_arrays,
     split_by_date,
 )
-from config import FEATURE_COLUMNS, OBS_DIM, TRAIN_END, TEST_START, TEST_END
-
 
 # ---------------------------------------------------------------------------
 # Fixture: loaded raw DataFrame

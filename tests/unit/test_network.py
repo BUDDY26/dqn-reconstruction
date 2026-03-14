@@ -8,11 +8,11 @@ Verifies:
   - Gradient flow is intact (backward pass does not error).
 """
 
-import torch
 import pytest
+import torch
 
+from config import HIDDEN_SIZE, N_ACTIONS, OBS_DIM
 from network import QNetwork
-from config import OBS_DIM, N_ACTIONS, HIDDEN_SIZE
 
 
 class TestQNetworkConstruction:

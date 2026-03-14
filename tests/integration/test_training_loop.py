@@ -15,7 +15,6 @@ from agent import DQNAgent
 from data import build_features, load_csv, prepare_arrays
 from train import TrainResult, train
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -108,20 +107,20 @@ class TestCheckpointSaving:
     """Verify that checkpoint_path causes a state_dict file to be written."""
 
     def test_checkpoint_file_created(self, tmp_path, train_arrays):
-        import torch
         features, close = train_arrays
         ckpt = tmp_path / "model.pt"
-        result = train(features, close, ticker="CKPT", n_episodes=1, checkpoint_path=ckpt)
+        train(features, close, ticker="CKPT", n_episodes=1, checkpoint_path=ckpt)
         assert ckpt.exists(), "Checkpoint file was not created."
 
     def test_checkpoint_loadable(self, tmp_path, train_arrays):
         """State dict saved during training must be loadable into a fresh QNetwork."""
         import torch
+
         from network import QNetwork
 
         features, close = train_arrays
         ckpt = tmp_path / "model.pt"
-        result = train(features, close, ticker="CKPT", n_episodes=1, checkpoint_path=ckpt)
+        train(features, close, ticker="CKPT", n_episodes=1, checkpoint_path=ckpt)
 
         net = QNetwork()
         net.load_state_dict(torch.load(ckpt, weights_only=True))  # must not raise

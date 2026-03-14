@@ -2,7 +2,8 @@
 tests/unit/test_env.py — Unit tests for src/env.py (TradingEnv).
 
 Tests verify:
-  - Gymnasium API contract: reset() → (obs, info), step() → (obs, reward, terminated, truncated, info)
+  - Gymnasium API contract: reset() → (obs, info),
+    step() → (obs, reward, terminated, truncated, info)
   - Observation space shape and dtype
   - Action space cardinality
   - Reward formula: position × daily_return  [assumption A-E1]
@@ -18,7 +19,6 @@ No CSV loading or real data is required for these tests.
 import numpy as np
 import pytest
 
-from env import TradingEnv
 from config import (
     ACTION_BUY,
     ACTION_HOLD,
@@ -27,7 +27,7 @@ from config import (
     N_ACTIONS,
     OBS_DIM,
 )
-
+from env import TradingEnv
 
 # ---------------------------------------------------------------------------
 # Fixture: small env with known close prices

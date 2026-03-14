@@ -4,7 +4,8 @@ config.py — Hyperparameter registry for the DQN reconstruction.
 Every constant in this module is annotated with its source:
   [CONFIRMED]     Value taken directly from the paper or final project report.
                   Must not be changed without an ADR explaining the deviation.
-  [ASSUMED: A-Xn] Reconstruction assumption declared in docs/adr/ADR-002-reconstruction-assumptions.md.
+  [ASSUMED: A-Xn] Reconstruction assumption declared in
+                  docs/adr/ADR-002-reconstruction-assumptions.md.
                   Must not be changed without annotating the corresponding Category 3 entry
                   in docs/evidence-ledger.md and creating a new ADR if architecturally significant.
   [DERIVED]       Computed from confirmed and assumed values; not independently confirmed.

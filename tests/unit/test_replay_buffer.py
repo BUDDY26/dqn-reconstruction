@@ -13,9 +13,8 @@ import numpy as np
 import pytest
 import torch
 
+from config import BATCH_SIZE, OBS_DIM
 from replay_buffer import ReplayBuffer
-from config import OBS_DIM, BATCH_SIZE
-
 
 # ---------------------------------------------------------------------------
 # Helpers

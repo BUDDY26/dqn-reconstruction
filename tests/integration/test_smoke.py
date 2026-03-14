@@ -21,9 +21,9 @@ No live data is fetched.  All data comes from tests/fixtures/sample_ohlcv.csv.
 import numpy as np
 import pytest
 
+from config import INITIAL_CAPITAL, OBS_DIM
 from data import build_features, load_csv, prepare_arrays
 from env import TradingEnv
-from config import OBS_DIM, INITIAL_CAPITAL
 
 
 class TestSmokeEndToEnd:
