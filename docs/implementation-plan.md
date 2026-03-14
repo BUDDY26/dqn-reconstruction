@@ -1,6 +1,22 @@
 # Implementation Plan
 
-**Status:** Documentation phase — no code written yet.
+**Status:** First coding pass complete — config, data, env, utils implemented and tested.
+**Last updated:** 2026-03-14
+
+| Module | Status | Tests |
+|--------|--------|-------|
+| `src/config.py` | ✅ Complete | — (constants, validated by assertion) |
+| `src/data.py` | ✅ Complete | ✅ 38 unit tests passing |
+| `src/env.py` | ✅ Complete | ✅ 40 unit tests + 9 integration tests passing |
+| `src/utils.py` | ✅ Complete | — (utilities used by env/data indirectly) |
+| `src/network.py` | ⬜ Not started | |
+| `src/replay_buffer.py` | ⬜ Not started | |
+| `src/agent.py` | ⬜ Not started | |
+| `src/train.py` | ⬜ Not started | |
+| `src/evaluate.py` | ⬜ Not started | |
+
+**Test suite:** 93 tests, 0 failures, 0 errors (pytest, 2026-03-14)
+
 **Constraint:** This plan describes intended structure only. All modules referencing unresolved
 gaps from `docs/evidence-ledger.md` must have those gaps resolved (or assumptions declared)
 before implementation begins.
@@ -247,4 +263,4 @@ can be written. Do not begin implementation of a blocked module.
 ---
 
 *Last updated: 2026-03-14*
-*Status: Documentation phase — awaiting gap resolution before implementation*
+*Status: First coding pass complete. All 93 tests pass. Second pass (network, replay buffer, agent, train, evaluate) may begin.*
