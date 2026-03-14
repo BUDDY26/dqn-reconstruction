@@ -1,223 +1,164 @@
-# portfolio-base
+# dqn-reconstruction
 
-> A reusable GitHub template repository for professional software engineering projects.
-> Structured for graduate admissions review (UT Austin MSCS) and employer evaluation.
-
----
-
-## What This Template Includes
-
-Every repository created from this template gets:
-
-| Category | What's Included |
-|----------|----------------|
-| **Claude Code** | `CLAUDE.md` (9-section memory file), 6 skills, 6 hooks |
-| **CI/CD** | GitHub Actions pipeline (lint + test + security scan) |
-| **Documentation** | Architecture doc, ADR template, QA plan, operations runbook |
-| **Source structure** | `src/`, `tests/unit/`, `tests/integration/` with working starter files |
-| **Python tooling** | `pyproject.toml`, `requirements.txt`, pytest + ruff + black configured |
-| **TypeScript tooling** | `package.json`, `tsconfig.json`, jest + eslint + prettier configured |
-| **Automation** | `bootstrap.sh` (renames all placeholders), `validate-structure.sh` |
-| **GitHub** | PR template, bug report + feature request issue templates |
+A reconstruction of a Deep Q-Network (DQN) agent for discrete-action stock trading, rebuilt from
+the surviving final project report and original research paper after the implementation repository
+became unavailable.
 
 ---
 
-## Using This Template
+## Project Overview
 
-### Option A — GitHub UI (recommended)
+This repository reconstructs a reinforcement learning system in which a DQN agent learns to issue
+buy, hold, or sell decisions for five equity assets using daily OHLCV data. The original system was
+developed as a collaborative research project. When the implementation became inaccessible, this
+reconstruction was initiated to restore a working, reproducible version of the experiment using only
+the documented technical record.
 
-1. Click **Use this template** → **Create a new repository** at the top of this page
-2. Name your repository and choose visibility
-3. Clone your new repository locally
-4. Run the bootstrap script:
+The reconstruction adheres to a strict evidence discipline: every implementation choice is either
+directly sourced from the paper or report, or explicitly flagged as a reconstruction assumption in
+`docs/evidence-ledger.md`. No implementation details are invented or inferred without documentation.
+
+---
+
+## Reconstruction Context
+
+| Item | Status |
+|------|--------|
+| Original implementation | Unavailable |
+| Final project report | Available — primary source |
+| Research paper | Available — primary source |
+| Hyperparameters | Confirmed from paper/report |
+| Architecture details | Confirmed from paper/report |
+| Unresolved implementation gaps | Documented in `docs/evidence-ledger.md` |
+
+This is not a re-implementation from scratch based on general DQN knowledge. It is a
+evidence-bounded reconstruction from a specific prior experiment. Where the paper and report are
+silent, decisions are deferred or explicitly declared as assumptions.
+
+---
+
+## Research Context
+
+The original project applied deep reinforcement learning to financial trading, framing portfolio
+management as a discrete Markov Decision Process. The agent observes engineered features derived
+from daily price data and learns a policy that maximizes cumulative return over the training period.
+
+**Assets:** AAPL, INTC, META, TQQQ, TSLA
+**Data range:** 2017-01-01 to 2024-06-01
+**Action space:** {buy, hold, sell} — three discrete actions
+**State features:** OHLCV + VWAP + percentage changes, normalized with StandardScaler
+
+---
+
+## Confirmed Technical Specifications
+
+These values are taken directly from the paper and report. They are not estimates.
+
+| Parameter | Value | Source |
+|-----------|-------|--------|
+| Assets | AAPL, INTC, META, TQQQ, TSLA | Paper/Report |
+| Date range | 2017-01-01 to 2024-06-01 | Paper/Report |
+| Test period | 2023-01-01 to 2024-01-01 | Paper/Report |
+| Input features | OHLCV + VWAP + pct changes | Paper/Report |
+| Preprocessing | StandardScaler | Paper/Report |
+| Hidden layers | 256 → 256 | Paper/Report |
+| Activation | ReLU | Paper/Report |
+| Actions | buy / hold / sell | Paper/Report |
+| Learning rate | 0.0003 | Paper/Report |
+| Discount factor (γ) | 0.99 | Paper/Report |
+| Epsilon range | 1.0 → 0.01 | Paper/Report |
+| Batch size | 64 | Paper/Report |
+| Replay buffer size | 100,000 | Paper/Report |
+| Training episodes | 200 | Paper/Report |
+| Evaluation metrics | ROI, Sharpe Ratio, Max Drawdown, Calmar Ratio | Paper/Report |
+
+For a complete list of confirmed details, unresolved gaps, and declared reconstruction assumptions,
+see [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
+
+---
+
+## Repository Structure
+
+```
+dqn-reconstruction/
+├── docs/
+│   ├── architecture.md          # System design and component breakdown
+│   ├── evidence-ledger.md       # Confirmed facts, gaps, and assumptions
+│   ├── implementation-plan.md   # Planned modules and pipeline
+│   ├── adr/                     # Architecture Decision Records
+│   ├── qa/                      # Test strategy
+│   └── runbooks/                # Setup and operational guide
+├── src/                         # Implementation (added during coding phase)
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── scripts/
+│   ├── bootstrap.sh
+│   └── validate-structure.sh
+└── .github/
+    └── workflows/
+        └── ci.yml               # Lint + test + security pipeline
+```
+
+---
+
+## Setup
 
 ```bash
-cd your-new-repo
-bash scripts/bootstrap.sh
-```
+# Clone
+git clone https://github.com/BUDDY26/dqn-reconstruction.git
+cd dqn-reconstruction
 
-The script will prompt for your project name, language, commands, and automatically replace all `{{PLACEHOLDER}}` tokens throughout every file.
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
-### Option B — Manual Setup
-
-If you prefer to set up manually without the script:
-
-1. Clone or download this template
-2. Find and replace all `{{PLACEHOLDER}}` tokens (see table below)
-3. Delete any language-specific files you don't need
-4. Run `bash scripts/validate-structure.sh` to confirm everything is in place
-
-#### All Placeholders
-
-| Placeholder | Replace With | Example |
-|-------------|-------------|---------|
-| `{{PROJECT_NAME}}` | Your project name | `my-api-service` |
-| `{{PROJECT_DESCRIPTION}}` | One-sentence description | `A REST API for managing inventory` |
-| `{{GITHUB_USERNAME}}` | Your GitHub username | `jdoe` |
-| `{{REPO_NAME}}` | Repository name | `inventory-api` |
-| `{{LANGUAGE}}` | Primary language + version | `Python 3.11` |
-| `{{FRAMEWORK}}` | Framework (or `None`) | `FastAPI` |
-| `{{DATABASE}}` | Database (or `None`) | `PostgreSQL` |
-| `{{TEST_FRAMEWORK}}` | Test framework | `pytest` |
-| `{{INSTALL_COMMAND}}` | Dependency install command | `pip install -r requirements.txt` |
-| `{{RUN_COMMAND}}` | Application run command | `python src/main.py` |
-| `{{TEST_COMMAND}}` | Test run command | `pytest tests/ -v` |
-| `{{LINT_COMMAND}}` | Lint/format command | `ruff check src/ && black src/` |
-| `{{LICENSE}}` | License type | `MIT` |
-| `{{LAST_UPDATED}}` | Today's date | `2026-03-13` |
-| `{{STATUS}}` | Project status | `Active Development` |
-| `{{DEMONSTRATES}}` | Skills demonstrated | `REST API design, TDD, async processing` |
-| `{{ARCHITECTURE_SUMMARY}}` | 3–5 sentence architecture description | *(fill in after design)* |
-| `{{REPO_TREE}}` | Output of `tree -L 3 --gitignore` | *(fill in after populating src/)* |
-
----
-
-## Directory Structure
-
-```
-portfolio-base/
-├── CLAUDE.md                         # Claude Code operating guide (9 sections)
-├── README.md                         # Project README (with {{PLACEHOLDER}} tokens)
-├── TEMPLATE_README.md                # This file — template documentation
-├── CHANGELOG.md                      # Version history
-├── .env.example                      # Environment variable reference
-├── .gitignore                        # Python + Node + IDE + OS
-│
-├── pyproject.toml                    # Python: pytest, ruff, black, coverage config
-├── requirements.txt                  # Python: runtime dependencies
-├── package.json                      # TypeScript: scripts, dependencies
-├── tsconfig.json                     # TypeScript: compiler options
-├── jest.config.js                    # TypeScript: test runner config
-├── .eslintrc.js                      # TypeScript: linter config
-├── .prettierrc                       # TypeScript: formatter config
-│
-├── src/                              # Application source code
-│   ├── CLAUDE.md                     # Module-level sharp-edge notes
-│   ├── __init__.py                   # Python package init
-│   ├── main.py                       # Python entry point (starter)
-│   └── index.ts                     # TypeScript entry point (starter)
-│
-├── tests/
-│   ├── conftest.py                   # pytest fixtures
-│   ├── unit/
-│   │   ├── test_main.py              # Python unit test starter
-│   │   └── index.test.ts            # TypeScript unit test starter
-│   └── integration/
-│       ├── test_integration_example.py
-│       └── integration.test.ts
-│
-├── docs/
-│   ├── architecture.md               # System design template
-│   ├── adr/
-│   │   └── ADR-001-template.md       # Architecture Decision Record template
-│   ├── qa/
-│   │   └── qa-plan.md                # Test strategy template
-│   └── runbooks/
-│       └── operations.md             # Operational runbook template
-│
-├── scripts/
-│   ├── bootstrap.sh                  # First-time setup + placeholder replacement
-│   └── validate-structure.sh        # Structure conformance checker
-│
-├── .github/
-│   ├── workflows/
-│   │   └── ci.yml                    # Lint + test + security scan pipeline
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug-report.md
-│   │   └── feature-request.md
-│   ├── pull_request_template.md
-│   └── dependabot.yml
-│
-└── .claude/
-    ├── skills/
-    │   ├── entry-protocol.md         # Mandatory 9-phase repo scan
-    │   ├── code-review.md            # Structured code review
-    │   ├── refactor-playbook.md      # Safe refactoring workflow
-    │   ├── documentation.md          # Docstrings + docs generation
-    │   ├── qa-checklist.md           # Quality + portfolio readiness audit
-    │   └── release-procedure.md      # Pre-release checklist
-    └── hooks/
-        └── hooks.md                  # 6 automatic guardrails
+# Install dependencies (once requirements.txt is populated)
+pip install -r requirements.txt
 ```
 
 ---
 
-## Claude Code Workflow
+## Running
 
-Once your repository is set up, open it in VS Code with Claude Code and say:
+```bash
+# Train the agent (once src/train.py exists)
+python src/train.py
 
-> **"Run the entry protocol"**
+# Run tests
+pytest tests/ -v
 
-Claude will scan the repository, build a system summary, and propose a prioritized list of improvements — without touching any code until you approve.
-
-### Available Skills
-
-| Say this... | Claude will... |
-|-------------|---------------|
-| `"Run the entry protocol"` | Scan, summarize, and propose changes |
-| `"Review this file"` | Run structured code review with severity ratings |
-| `"Refactor this"` | Safe, proposal-first refactoring |
-| `"Document this"` | Generate docstrings, README, architecture docs |
-| `"Run QA"` | Audit tests, docs, and portfolio readiness |
-| `"Prepare a release"` | Pre-release checklist and release report |
-
-### Project Instructions (Paste into Claude Code)
-
-Open **Claude Code → Project Settings → Custom Instructions** and paste:
-
-```
-You are a software engineering assistant maintaining a professional portfolio.
-These repositories are reviewed by graduate admissions committees (UT Austin
-MSCS) and software engineering employers.
-
-MANDATORY RULES — apply every session:
-1. Always read CLAUDE.md before doing anything else.
-2. Run the entry protocol (.claude/skills/entry-protocol.md) before modifying code.
-3. Respect the three-tier permission model in CLAUDE.md Section 3.
-4. Use skills for repeated workflows — read the relevant .claude/skills/*.md first.
-5. Respect all hooks in .claude/hooks/hooks.md.
-6. Write documentation for a technical reader who has never seen this project.
-7. Update CLAUDE.md at the end of every session with new findings.
+# Validate repo structure
+bash scripts/validate-structure.sh
 ```
 
 ---
 
-## Applying to Existing Repositories
+## Reproducibility Goals
 
-To bring an existing repo up to this standard:
-
-1. Copy `.claude/` into the repo root
-2. Copy `docs/` templates (don't overwrite existing docs)
-3. Copy `scripts/bootstrap.sh` and `scripts/validate-structure.sh`
-4. Create `CLAUDE.md` from the template and fill in sections 1–3
-5. Run `bash scripts/validate-structure.sh` to see what's missing
-6. In Claude Code: `"Run the entry protocol"` — it will handle the rest
-
----
-
-## After Bootstrap: What To Do First
-
-After running `bootstrap.sh`, complete these in order:
-
-- [ ] Fill in `CLAUDE.md` sections 4–9 (architecture, sharp edges, portfolio context)
-- [ ] Replace starter `src/main.py` / `src/index.ts` with your actual code
-- [ ] Write real tests in `tests/unit/` and `tests/integration/`
-- [ ] Fill in `docs/architecture.md` with your system design
-- [ ] Create your first real ADR in `docs/adr/` (copy `ADR-001-template.md`)
-- [ ] Add all required environment variables to `.env.example`
-- [ ] Enable GitHub Actions in your repository settings
-- [ ] Run `bash scripts/validate-structure.sh --strict` — it should pass clean
+1. **Hyperparameter fidelity** — all confirmed hyperparameters from the paper are reproduced exactly;
+   no values are tuned away from the documented source.
+2. **Evidence traceability** — every module decision references either the paper/report or a declared
+   assumption in `docs/evidence-ledger.md`.
+3. **Assumption transparency** — reconstruction assumptions are not buried in code comments; they are
+   centrally tracked and versioned.
+4. **No silent substitutions** — if a documented value produces unexpected behavior during
+   reconstruction, the behavior is documented rather than silently corrected.
 
 ---
 
-## How to Enable This as a GitHub Template
+## Documentation Index
 
-1. Push this repository to GitHub
-2. Go to **Settings → General**
-3. Check **Template repository**
-4. Now the **"Use this template"** button appears on the repository page
+| Document | Purpose |
+|----------|---------|
+| [`docs/architecture.md`](docs/architecture.md) | Full system design |
+| [`docs/evidence-ledger.md`](docs/evidence-ledger.md) | Confirmed facts, gaps, assumptions |
+| [`docs/implementation-plan.md`](docs/implementation-plan.md) | Module and pipeline plan |
+| [`docs/adr/ADR-001-template.md`](docs/adr/ADR-001-template.md) | Reconstruction philosophy ADR |
+| [`docs/qa/qa-plan.md`](docs/qa/qa-plan.md) | Test strategy |
+| [`docs/runbooks/operations.md`](docs/runbooks/operations.md) | Setup and operational procedures |
 
 ---
 
-*Built as part of a professional software engineering portfolio system.*
-*Designed for UT Austin MSCS graduate admissions and employer review.*
+*Portfolio project — UT Austin MSCS application.*
+*Reconstruction initiated: 2026-03-14.*
