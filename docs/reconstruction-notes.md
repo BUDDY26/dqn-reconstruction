@@ -151,3 +151,5 @@ The evaluation metrics implemented in `src/evaluate.py` follow the assumptions b
 - annualization uses **252 trading days**
 - Sharpe ratio uses **sample standard deviation (ddof = 1)**
 - Calmar ratio returns **0.0** when maximum drawdown is **0** (undefined case handled conservatively)
+
+<!-- CI retrigger: fixed Ruff I001 import grouping in tests/unit/test_agent.py -->

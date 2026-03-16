@@ -213,6 +213,7 @@ class TestTrainStep:
         never called.
         """
         from unittest.mock import patch
+
         import torch.nn.functional as F_ref
 
         agent = _make_agent()
