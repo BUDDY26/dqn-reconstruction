@@ -192,13 +192,21 @@ results/verification_results.json
 
 # Project Status
 
-Reconstruction phase complete.
+The baseline reconstruction is operational and reproducible.
 
 Current repository contains:
 
-• working training pipeline  
-• reproducible data ingestion  
-• evaluation scripts  
-• experiment verification outputs  
+• working DQN training pipeline  
+• reproducible market data ingestion  
+• evaluation and verification scripts  
+• experiment checkpoints and metrics  
 
-Future work may include performance optimizations and experimental extensions, but these will be clearly separated from the baseline reconstruction.
+The project is now entering the **post-reconstruction phase**, where the verified baseline will be used as the foundation for:
+
+• performance optimizations  
+• GPU acceleration  
+• architectural refinements  
+• controlled experimental extensions  
+
+All improvements will be implemented in clearly separated branches so the original reconstruction baseline remains preserved.
+
