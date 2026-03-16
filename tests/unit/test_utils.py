@@ -69,9 +69,7 @@ class TestSetSeedCUDA:
         """set_seed must complete successfully on both CUDA and CPU machines."""
         set_seed(42)  # Must not raise whether CUDA is present or absent.
 
-    @pytest.mark.skipif(
-        not torch.cuda.is_available(), reason="CUDA not available on this machine"
-    )
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available on this machine")
     def test_cuda_rng_reproducible(self):
         """With CUDA, two calls with the same seed produce identical GPU tensors."""
         set_seed(42)
@@ -80,9 +78,7 @@ class TestSetSeedCUDA:
         b = torch.randn(10, device="cuda")
         assert torch.equal(a, b)
 
-    @pytest.mark.skipif(
-        not torch.cuda.is_available(), reason="CUDA not available on this machine"
-    )
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available on this machine")
     def test_different_seeds_produce_different_cuda_output(self):
         set_seed(42)
         a = torch.randn(10, device="cuda")

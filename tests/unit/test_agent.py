@@ -274,9 +274,9 @@ class TestTrainStep:
             f"got {len(online_call_count)}"
         )
         # target_net is called once: to evaluate Q(s', a*).
-        assert len(target_call_count) >= 1, (
-            f"Expected target_net.forward called ≥1 time, got {len(target_call_count)}"
-        )
+        assert (
+            len(target_call_count) >= 1
+        ), f"Expected target_net.forward called ≥1 time, got {len(target_call_count)}"
 
     def test_multiple_train_steps_run_without_error(self):
         agent = _make_agent()
@@ -317,10 +317,10 @@ class TestTrainStep:
             for p in agent.online_net.parameters()
             if p.grad is not None
         )
-        total_norm = total_norm_sq ** 0.5
-        assert total_norm <= 1.0 + 1e-5, (
-            f"Gradient norm {total_norm:.6f} exceeds clip threshold 1.0"
-        )
+        total_norm = total_norm_sq**0.5
+        assert (
+            total_norm <= 1.0 + 1e-5
+        ), f"Gradient norm {total_norm:.6f} exceeds clip threshold 1.0"
 
     def test_target_weights_unchanged_after_train_step(self):
         """train_step must NOT modify the target network."""
