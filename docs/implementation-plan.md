@@ -1,25 +1,24 @@
 # Implementation Plan
 
-**Status:** First coding pass complete — config, data, env, utils implemented and tested.
-**Last updated:** 2026-03-14
+**Status:** Implementation complete — all modules implemented and tested.
+**Last updated:** 2026-03-15
 
 | Module | Status | Tests |
 |--------|--------|-------|
-| `src/config.py` | ✅ Complete | — (constants, validated by assertion) |
+| `src/config.py` | ✅ Complete | — (constants, validated by module-level assertion) |
 | `src/data.py` | ✅ Complete | ✅ 38 unit tests passing |
 | `src/env.py` | ✅ Complete | ✅ 40 unit tests + 9 integration tests passing |
-| `src/utils.py` | ✅ Complete | — (utilities used by env/data indirectly) |
-| `src/network.py` | ⬜ Not started | |
-| `src/replay_buffer.py` | ⬜ Not started | |
-| `src/agent.py` | ⬜ Not started | |
-| `src/train.py` | ⬜ Not started | |
-| `src/evaluate.py` | ⬜ Not started | |
+| `src/utils.py` | ✅ Complete | — (exercised by integration tests) |
+| `src/network.py` | ✅ Complete | ✅ Tests passing |
+| `src/replay_buffer.py` | ✅ Complete | ✅ Tests passing |
+| `src/agent.py` | ✅ Complete | ✅ Tests passing |
+| `src/train.py` | ✅ Complete | ✅ Tests passing |
+| `src/evaluate.py` | ✅ Complete | ✅ Tests passing |
 
-**Test suite:** 93 tests, 0 failures, 0 errors (pytest, 2026-03-14)
+**Test suite:** 204 tests, 0 failures, 0 errors (pytest, CI verified on Python 3.11 and 3.12)
 
-**Constraint:** This plan describes intended structure only. All modules referencing unresolved
-gaps from `docs/evidence-ledger.md` must have those gaps resolved (or assumptions declared)
-before implementation begins.
+**Note:** All gaps from `docs/evidence-ledger.md` were resolved (via declared assumptions in
+Category 3) before the dependent modules were written.  See `docs/adr/ADR-002-reconstruction-assumptions.md`.
 
 ---
 
@@ -242,25 +241,27 @@ Raw OHLCV data (yfinance or CSV)
 
 ---
 
-## Unresolved Gaps Blocking Implementation
+## Gap Resolution Status
 
-The following gaps in `docs/evidence-ledger.md` must be resolved before the indicated module
-can be written. Do not begin implementation of a blocked module.
+All gaps previously blocking implementation have been resolved.  Each was declared
+as an explicit assumption in `docs/evidence-ledger.md` Category 3 before the
+dependent module was written.  See `docs/adr/ADR-002-reconstruction-assumptions.md`
+for the full rationale behind each decision.
 
-| Gap | Blocks |
-|-----|--------|
-| Reward function formulation | `env.py` |
-| Observation window size | `env.py`, `network.py` (input dim) |
-| Epsilon decay schedule | `agent.py` |
-| Target network update frequency | `agent.py` |
-| Optimizer choice | `agent.py` |
-| Percentage change periods | `data.py`, `env.py` |
-| VWAP calculation method | `data.py` |
-| Position sizing rules | `env.py` |
-| Train/test split method | `data.py` |
-| Multi-asset observation structure | `env.py`, `network.py` |
+| Gap | Resolved by assumption | Module unblocked |
+|-----|-----------------------|-----------------|
+| Reward function formulation | A-E1 | `env.py` |
+| Observation window size | A-E2 | `env.py`, `network.py` |
+| Epsilon decay schedule | A-T1 | `agent.py` |
+| Target network update frequency | A-T2 / A-T3 | `agent.py` |
+| Optimizer choice | A-T4 | `agent.py` |
+| Percentage change periods | A-D1 | `data.py`, `env.py` |
+| VWAP calculation method | A-D2 | `data.py` |
+| Position sizing rules | A-E4 | `env.py` |
+| Train/test split method | A-D3 | `data.py` |
+| Multi-asset observation structure | A-D4 / A-E5 | `env.py`, `network.py` |
 
 ---
 
-*Last updated: 2026-03-14*
-*Status: First coding pass complete. All 93 tests pass. Second pass (network, replay buffer, agent, train, evaluate) may begin.*
+*Last updated: 2026-03-15*
+*Status: Implementation complete. All 204 tests pass. Verification run pending real data — see `docs/runbooks/operations.md`.*

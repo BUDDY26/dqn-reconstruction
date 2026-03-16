@@ -64,3 +64,6 @@ wandb/
 *.pt
 *.pth
 *.pkl
+
+# Market data (downloaded separately — see scripts/download_market_data.py)
+data/*.csv
