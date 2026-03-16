@@ -53,12 +53,13 @@ The reconstruction preserves the following confirmed characteristics of the orig
 
 - DQN network architecture: **11 → 256 → 256 → 3**
 - Adam optimizer
-- MSE loss function
 - epsilon-greedy exploration strategy
 - replay buffer training
 - target network updates
 
 These characteristics were derived directly from the available project documentation.
+
+The loss function was not explicitly specified in the source materials. The reconstructed baseline used MSE (declared assumption A-T5). The optimized run replaced this with Huber loss / SmoothL1 as an engineering improvement documented in `src/agent.py`.
 
 ---
 
@@ -127,43 +128,18 @@ The repository therefore represents both:
 
 ---
 
-## Future Work
+## Implemented Improvements
 
-### Improvement Branch
+The following engineering improvements were applied in the optimized run, on top of the
+reconstructed baseline:
 
-The `main` branch of this repository represents the **completed reconstruction and operational
-implementation** of the DQN trading system described in the original research paper and project
-report.
+1. **GPU / CUDA device support** — networks and tensors placed on the available compute device.
+2. **Full reproducibility seeding** — all four RNG sources seeded: Python `random`, NumPy, PyTorch CPU, PyTorch CUDA.
+3. **Gradient clipping** — `clip_grad_norm_(max_norm=1.0)` applied before each optimizer step.
+4. **Huber loss / SmoothL1** — replaces MSE for TD error computation; reduces sensitivity to outlier returns.
+5. **Double DQN target selection** — online network selects next action, target network evaluates it; reduces Q-value overestimation.
 
-This branch preserves the reconstructed baseline and should remain stable.
-
-Future experimentation and algorithmic improvements will be developed in a **separate branch**
-so that the reconstructed baseline remains unchanged.
-
-The improvement work will begin in the following branch:
-
-`improvement-experiments`
-
-This separation ensures:
-
-- the reconstructed system remains reproducible
-- improvements can be compared against the baseline
-- architectural changes do not overwrite the reconstruction
-
----
-
-## Planned Improvements
-
-Future experimentation may explore improvements such as:
-
-- Huber loss instead of MSE
-- gradient clipping for training stability
-- Double DQN target computation
-- soft target network updates
-- improved training metrics and logging
-
-These changes are intended to be evaluated against the reconstructed baseline to measure their
-individual contribution to training stability and evaluation performance.
+Results from both runs are compared in `results/comparison_summary.md`.
 
 ---
 

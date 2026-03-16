@@ -199,8 +199,9 @@ def _greedy_action(net: QNetwork, state: np.ndarray) -> int:
     Returns:
         Integer action in [0, n_actions).
     """
+    device = next(net.parameters()).device
     with torch.no_grad():
-        state_t = torch.from_numpy(state).float().unsqueeze(0)  # (1, obs_dim)
+        state_t = torch.from_numpy(state).float().unsqueeze(0).to(device)  # (1, obs_dim)
         return int(net(state_t).argmax(dim=1).item())
 
 

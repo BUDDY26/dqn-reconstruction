@@ -4,7 +4,7 @@ agent.py — DQN agent for the DQN reconstruction.
 Implements:
     - Epsilon-greedy action selection (linear decay — ASSUMED: A-T1)
     - Experience storage (delegates to ReplayBuffer)
-    - TD learning step with MSE loss (ASSUMED: A-T5)
+    - TD learning step with Huber loss / SmoothL1 (replaces MSE — ASSUMED: A-T5 → [IMPROVEMENT])
     - Hard target network update every N episodes (ASSUMED: A-T2/A-T3)
 
 Hyperparameter sources:
@@ -14,7 +14,7 @@ Hyperparameter sources:
     EPSILON_END     0.01    [CONFIRMED]
     EPSILON_DECAY   linear  [ASSUMED: A-T1]
     OPTIMIZER       Adam    [ASSUMED: A-T4]
-    LOSS            MSE     [ASSUMED: A-T5]
+    LOSS            Huber/SmoothL1  [IMPROVEMENT — replaces MSE assumed in A-T5]
     TARGET_UPDATE   10 eps  [ASSUMED: A-T2/A-T3]
 
 Reference: docs/adr/ADR-002-reconstruction-assumptions.md
@@ -43,6 +43,11 @@ from replay_buffer import ReplayBuffer
 from utils import epsilon_for_episode, get_logger
 
 logger = get_logger(__name__)
+
+# Maximum L2 norm allowed for the online network's gradients after each backward pass.
+# Prevents gradient spikes from high-variance daily returns (e.g. TQQQ, TSLA).
+# Standard DQN engineering practice; not a confirmed paper hyperparameter.  [IMPROVEMENT]
+_GRAD_CLIP_MAX_NORM: float = 1.0
 
 
 class DQNAgent:
@@ -93,9 +98,13 @@ class DQNAgent:
         self._total_episodes = total_episodes
         self._batch_size = batch_size
 
+        # Select compute device — GPU if available, CPU otherwise.
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        logger.info("DQNAgent: using device %s.", self._device)
+
         # Q-networks (online updated every step; target updated every N episodes).
-        self.online_net = QNetwork(obs_dim, n_actions)
-        self.target_net = QNetwork(obs_dim, n_actions)
+        self.online_net = QNetwork(obs_dim, n_actions).to(self._device)
+        self.target_net = QNetwork(obs_dim, n_actions).to(self._device)
         self.target_net.load_state_dict(self.online_net.state_dict())
         self.target_net.eval()  # Target network is never trained directly.
 
@@ -150,7 +159,7 @@ class DQNAgent:
 
         self.online_net.eval()
         with torch.no_grad():
-            state_t = torch.from_numpy(state).float().unsqueeze(0)  # (1, obs_dim)
+            state_t = torch.from_numpy(state).float().unsqueeze(0).to(self._device)  # (1, obs_dim)
             q_values = self.online_net(state_t)  # (1, n_actions)
         self.online_net.train()
 
@@ -185,10 +194,11 @@ class DQNAgent:
         Skips the update and returns None if the replay buffer does not yet
         contain enough transitions (< batch_size).
 
-        TD target (standard DQN, no double-DQN):
-            y = r + γ · max_a Q_target(s', a) · (1 - done)
+        TD target (Double DQN — [IMPROVEMENT]):
+            a* = argmax_a Q_online(s', a)          # online net selects action
+            y  = r + γ · Q_target(s', a*) · (1 - done)  # target net evaluates it
 
-        Loss: MSE(Q_online(s)[a], y)  [ASSUMED: A-T5]
+        Loss: SmoothL1(Q_online(s)[a], y)  Huber loss (δ=1); replaces MSE [IMPROVEMENT]
 
         Returns:
             Scalar loss value if an update was performed; None otherwise.
@@ -198,20 +208,30 @@ class DQNAgent:
 
         states, actions, rewards, next_states, dones = self.replay_buffer.sample(self._batch_size)
 
+        # Move sampled tensors to the compute device.
+        states = states.to(self._device)
+        actions = actions.to(self._device)
+        rewards = rewards.to(self._device)
+        next_states = next_states.to(self._device)
+        dones = dones.to(self._device)
+
         # Q-values for actions actually taken: shape (batch,).
         self.online_net.train()
         q_pred = self.online_net(states).gather(1, actions.unsqueeze(1)).squeeze(1)
 
-        # TD targets computed under the frozen target network.
+        # Double DQN TD targets: online net selects next action, target net evaluates it.
+        # Reduces Q-value overestimation vs. standard DQN.  [IMPROVEMENT]
         with torch.no_grad():
-            q_next = self.target_net(next_states).max(dim=1).values  # (batch,)
+            next_actions = self.online_net(next_states).argmax(dim=1, keepdim=True)  # (batch, 1)
+            q_next = self.target_net(next_states).gather(1, next_actions).squeeze(1)  # (batch,)
             # Zero out future reward for terminal transitions.
             q_target = rewards + self._gamma * q_next * (1.0 - dones.float())
 
-        loss = F.mse_loss(q_pred, q_target)
+        loss = F.smooth_l1_loss(q_pred, q_target)
 
         self.optimizer.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.online_net.parameters(), _GRAD_CLIP_MAX_NORM)
         self.optimizer.step()
 
         return loss.item()

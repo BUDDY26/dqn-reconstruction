@@ -125,7 +125,7 @@ class TestSelectAction:
         agent = _make_agent(epsilon_start=0.0, epsilon_end=0.0)
 
         state = _random_state(seed=7)
-        state_t = torch.from_numpy(state).float().unsqueeze(0)
+        state_t = torch.from_numpy(state).float().unsqueeze(0).to(agent._device)
 
         with torch.no_grad():
             q_values = agent.online_net(state_t)
@@ -204,6 +204,79 @@ class TestTrainStep:
         loss = agent.train_step()
         assert loss >= 0.0
 
+    def test_loss_uses_smooth_l1_not_mse(self):
+        """train_step must call F.smooth_l1_loss, not F.mse_loss.
+
+        Patches torch.nn.functional.smooth_l1_loss with a spy (wraps=) so the
+        real function still runs and returns a valid loss, then asserts the spy
+        was called exactly once.  A symmetric patch on mse_loss asserts it was
+        never called.
+        """
+        from unittest.mock import patch
+        import torch.nn.functional as F_ref
+
+        agent = _make_agent()
+        _fill_agent_buffer(agent, BATCH_SIZE)
+
+        with (
+            patch(
+                "torch.nn.functional.smooth_l1_loss",
+                wraps=F_ref.smooth_l1_loss,
+            ) as spy_sml1,
+            patch(
+                "torch.nn.functional.mse_loss",
+                wraps=F_ref.mse_loss,
+            ) as spy_mse,
+        ):
+            agent.train_step()
+
+        spy_sml1.assert_called_once()
+        spy_mse.assert_not_called()
+
+    def test_double_dqn_uses_online_net_for_action_selection(self):
+        """Double DQN: online network must be called to select the next action.
+
+        Spies on both online_net and target_net forward passes during train_step.
+        Asserts that both are called — online for action selection inside
+        torch.no_grad() and for q_pred, target for evaluation — confirming
+        Double DQN rather than standard DQN (which calls target_net only).
+        """
+        from unittest.mock import patch
+
+        agent = _make_agent()
+        _fill_agent_buffer(agent, BATCH_SIZE)
+
+        online_call_count = []
+        target_call_count = []
+
+        original_online = agent.online_net.forward
+        original_target = agent.target_net.forward
+
+        def counting_online(x):
+            online_call_count.append(1)
+            return original_online(x)
+
+        def counting_target(x):
+            target_call_count.append(1)
+            return original_target(x)
+
+        with (
+            patch.object(agent.online_net, "forward", side_effect=counting_online),
+            patch.object(agent.target_net, "forward", side_effect=counting_target),
+        ):
+            agent.train_step()
+
+        # online_net is called twice: once for q_pred (train mode), once for
+        # next-action selection inside torch.no_grad() (Double DQN).
+        assert len(online_call_count) >= 2, (
+            f"Expected online_net.forward called ≥2 times (Double DQN), "
+            f"got {len(online_call_count)}"
+        )
+        # target_net is called once: to evaluate Q(s', a*).
+        assert len(target_call_count) >= 1, (
+            f"Expected target_net.forward called ≥1 time, got {len(target_call_count)}"
+        )
+
     def test_multiple_train_steps_run_without_error(self):
         agent = _make_agent()
         _fill_agent_buffer(agent, BATCH_SIZE * 4)
@@ -225,6 +298,28 @@ class TestTrainStep:
             for name, param in agent.online_net.named_parameters()
         )
         assert changed, "No online network parameters were updated after train_step."
+
+    def test_gradient_norm_bounded_after_train_step(self):
+        """After train_step, online network gradient L2 norm must be ≤ 1.0.
+
+        clip_grad_norm_ is called before optimizer.step() but does not clear
+        gradients — they remain on .grad attributes until the next zero_grad().
+        Reading them here verifies the clip was applied.
+        """
+        agent = _make_agent()
+        _fill_agent_buffer(agent, BATCH_SIZE)
+        agent.train_step()
+
+        # Compute L2 norm across all parameter gradients (mirrors PyTorch internals).
+        total_norm_sq = sum(
+            p.grad.data.norm(2).item() ** 2
+            for p in agent.online_net.parameters()
+            if p.grad is not None
+        )
+        total_norm = total_norm_sq ** 0.5
+        assert total_norm <= 1.0 + 1e-5, (
+            f"Gradient norm {total_norm:.6f} exceeds clip threshold 1.0"
+        )
 
     def test_target_weights_unchanged_after_train_step(self):
         """train_step must NOT modify the target network."""

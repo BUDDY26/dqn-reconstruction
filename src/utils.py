@@ -17,6 +17,7 @@ import random
 from typing import Optional
 
 import numpy as np
+import torch
 
 # ---------------------------------------------------------------------------
 # Reproducibility
@@ -24,11 +25,13 @@ import numpy as np
 
 
 def set_seed(seed: int) -> None:
-    """Set random seeds for NumPy and Python's random module.
+    """Set random seeds for Python's random module, NumPy, and PyTorch.
 
-    PyTorch seeds (torch.manual_seed) are set in agent.py when the network
-    is instantiated.  They are deferred here to avoid importing torch before
-    it is confirmed as an installed dependency.
+    Covers all four RNG sources used by the pipeline:
+      - Python built-in random module
+      - NumPy
+      - PyTorch CPU RNG
+      - PyTorch CUDA RNG on all devices (when CUDA is available)
 
     Args:
         seed: Non-negative integer seed value.
@@ -40,7 +43,14 @@ def set_seed(seed: int) -> None:
         raise ValueError(f"seed must be non-negative; got {seed}.")
     random.seed(seed)
     np.random.seed(seed)
-    logging.getLogger(__name__).debug("set_seed: seed=%d applied to numpy and random.", seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    logging.getLogger(__name__).debug(
+        "set_seed: seed=%d applied to random, numpy, torch%s.",
+        seed,
+        "+cuda" if torch.cuda.is_available() else "",
+    )
 
 
 # ---------------------------------------------------------------------------

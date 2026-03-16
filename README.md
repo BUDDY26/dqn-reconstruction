@@ -98,14 +98,18 @@ dqn-reconstruction
 │   ├── qa/  
 │   └── runbooks/  
 │  
-├── results/  
-│   ├── checkpoints/          # trained models  
-│   ├── paper_reported_metrics.md  
-│   └── verification_results.json  
-│  
-├── scripts/  
-│   ├── download_market_data.py  
-│   └── run_verification.py  
+├── results/
+│   ├── checkpoints/          # baseline trained models
+│   │   └── optimized/        # optimized trained models
+│   ├── paper_reported_metrics.md
+│   ├── verification_results.json
+│   ├── optimized_results.json
+│   └── comparison_summary.md
+│
+├── scripts/
+│   ├── download_market_data.py
+│   ├── run_verification.py
+│   └── run_optimized.py
 │  
 ├── src/                      # training pipeline  
 ├── tests/  
@@ -148,13 +152,30 @@ python scripts/run_verification.py --data-dir data --seed 42
 
 This performs:
 
-• model training  
-• evaluation  
-• metric computation  
+• model training
+• evaluation
+• metric computation
 
 Results are saved to:
 
 results/verification_results.json
+
+---
+
+# Run the Optimized Experiment
+
+python scripts/run_optimized.py --data-dir data --seed 42
+
+Applies five engineering improvements over the baseline (GPU support, full seeding, gradient
+clipping, Huber loss, Double DQN). Results are saved to:
+
+results/optimized_results.json
+
+Checkpoints are saved separately to:
+
+results/checkpoints/optimized/
+
+This does not overwrite verification_results.json or the baseline checkpoints.
 
 ---
 
@@ -173,9 +194,17 @@ Paper-reported metrics are stored in:
 
 results/paper_reported_metrics.md
 
-Reconstructed metrics are stored in:
+Reconstructed baseline metrics are stored in:
 
 results/verification_results.json
+
+Optimized run metrics are stored in:
+
+results/optimized_results.json
+
+A three-way comparison across all assets and metrics is in:
+
+results/comparison_summary.md
 
 ---
 
@@ -190,23 +219,39 @@ results/verification_results.json
 
 ---
 
+# Experiment Results
+
+The repository contains three layers of results for the 2023-01-01 → 2024-01-01 test period:
+
+| Layer | Description | File |
+|-------|-------------|------|
+| Paper baseline | Values reported in the original NLPIR 2024 paper | `results/paper_reported_metrics.md` |
+| Reconstructed baseline | Results from the faithful reconstruction run | `results/verification_results.json` |
+| Optimized run | Results after applying five engineering improvements | `results/optimized_results.json` |
+
+A three-way comparison across all assets and metrics is in `results/comparison_summary.md`.
+
+Selected highlights from the optimized run (test period ROI):
+
+| Asset | Reconstructed Baseline | Optimized |
+|-------|------------------------|-----------|
+| AAPL  | 0.2964                 | 0.5394    |
+| INTC  | 0.1031                 | 0.2956    |
+| META  | 0.4865                 | 0.7488    |
+| TQQQ  | 0.6419                 | 1.0901    |
+| TSLA  | -0.0025                | -0.0166   |
+
+---
+
 # Project Status
 
-The baseline reconstruction is operational and reproducible.
+The reconstruction is complete and the optimized follow-up run has been performed.
 
 Current repository contains:
 
-• working DQN training pipeline  
-• reproducible market data ingestion  
-• evaluation and verification scripts  
-• experiment checkpoints and metrics  
-
-The project is now entering the **post-reconstruction phase**, where the verified baseline will be used as the foundation for:
-
-• performance optimizations  
-• GPU acceleration  
-• architectural refinements  
-• controlled experimental extensions  
-
-All improvements will be implemented in clearly separated branches so the original reconstruction baseline remains preserved.
+• working DQN training pipeline
+• reproducible market data ingestion
+• evaluation and verification scripts
+• experiment checkpoints and metrics
+• baseline, reconstructed, and optimized result sets for direct comparison
 
